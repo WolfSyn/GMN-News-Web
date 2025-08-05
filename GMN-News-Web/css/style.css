@@ -1,0 +1,332 @@
+/* 1. Import a modern sans-serif font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+/* 2. CSS Variables for theme */
+:root {
+  --color-bg:    #121212;
+  --color-bg-2:  #1e1e1e;
+  --color-text:  #e0e0e0;
+  --color-accent:#3b82f6; /* blue-500 */
+  --color-accent-hover:#2563eb; /* blue-600 */
+  --color-muted: #888888;
+
+  --font-base:   'Inter', sans-serif;
+  --transition:  0.3s ease;
+}
+
+/* 3. Reset & Global */
+* {
+  margin: 0; padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: var(--font-base);
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+/* 4. Header & Nav */
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-bg-2);
+  padding: 1rem 2rem;
+  position: sticky; top: 0;
+  z-index: 100;
+}
+.site-nav .logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.site-nav ul {
+  display: flex;
+  gap: 1.5rem;
+}
+.site-nav li {
+  list-style: none;
+}
+.site-nav a {
+  font-weight: 500;
+  color: var(--color-text);
+}
+.site-nav a:hover {
+  color: var(--color-accent);
+}
+
+/* 5. Hero Section */
+.hero {
+  min-height: 60vh;
+  background: url('images/hero-bg.jpg') center/cover no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0 1rem;
+}
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.hero p {
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-muted);
+}
+
+/* 6. Button Styles */
+.btn-primary,
+.btn-secondary {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  transition: background var(--transition), color var(--transition);
+}
+.btn-primary {
+  background: var(--color-accent);
+  color: white;
+}
+.btn-primary:hover {
+  background: var(--color-accent-hover);
+}
+.btn-secondary {
+  background: transparent;
+  border: 2px solid var(--color-accent);
+  color: var(--color-accent);
+}
+.btn-secondary:hover {
+  background: var(--color-accent);
+  color: white;
+}
+
+/* 7. Features Section */
+.features {
+  padding: 4rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.features h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+.features ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  list-style: none;
+}
+.features li {
+  background: var(--color-bg-2);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  transition: transform var(--transition);
+}
+.features li:hover {
+  transform: translateY(-5px);
+}
+.features li::before {
+  content: '✓';
+  display: block;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-accent);
+}
+
+/* 8. Download Section */
+.download {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: var(--color-bg-2);
+}
+.download h2 {
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+/* 9. Footer */
+footer {
+  background: var(--color-bg-2);
+  text-align: center;
+  padding: 2rem 1rem;
+  margin-top: 4rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+footer a {
+  color: var(--color-text);
+}
+footer a:hover {
+  color: var(--color-accent);
+}
+
+/* 10. Responsive Tweaks */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2.5rem; }
+  .site-nav { padding: 0.75rem 1rem; }
+  .features { padding: 2rem 1rem; }
+}
+
+/* 11. About Page Styles */
+.about-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+.about-hero {
+  background: url('../images/about-hero.jpg') center/cover no-repeat;
+  color: #fff;
+  text-align: center;
+  padding: 6rem 1rem;
+  position: relative;
+}
+.about-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+}
+.about-hero h1,
+.about-hero p {
+  position: relative;
+  z-index: 1;
+}
+.about-hero h1 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 2.5rem;
+  text-shadow: 0 0 12px var(--color-accent);
+}
+.about-hero p {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  color: var(--color-muted);
+}
+.about-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+.about-content .card {
+  background: var(--color-bg-2);
+  border: 2px solid var(--color-accent);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.about-content .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 15px var(--color-accent);
+}
+.about-content h2 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.25rem;
+  color: var(--color-accent);
+  margin-bottom: 0.75rem;
+}
+.about-cta {
+  text-align: center;
+  margin: 4rem 0;
+}
+.about-cta .btn-primary,
+.about-cta .btn-secondary {
+  margin: 0 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.9rem;
+}
+
+/* 12. Blog Page Styles */
+/* Container */
+.blog-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+/* Hero */
+.blog-hero {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+.blog-hero h1 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 2rem;
+  color: var(--color-accent);
+}
+.blog-hero p {
+  margin-top: 0.5rem;
+  color: var(--color-muted);
+}
+/* Posts grid */
+.blog-list {
+  display: grid;
+  gap: 2rem;
+}
+/* Individual post card */
+.blog-post {
+  background: var(--color-bg-2);
+  border-left: 4px solid var(--color-accent);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+.blog-post:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 15px var(--color-accent);
+}
+/* Post title */
+.post-title {
+  margin: 0 0 0.5rem 0;
+}
+.post-title a {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1.25rem;
+  color: var(--color-text);
+  transition: color var(--transition);
+}
+.post-title a:hover {
+  color: var(--color-accent);
+}
+/* Meta & excerpt */
+.post-meta {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  margin-bottom: 1rem;
+}
+.post-excerpt {
+  margin-bottom: 1rem;
+}
+/* Read more link */
+.read-more {
+  font-weight: 600;
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+.read-more:hover {
+  color: var(--color-accent-hover);
+}
+/* Responsive for posts grid */
+@media (min-width: 600px) {
+  .blog-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 900px) {
+  .blog-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
