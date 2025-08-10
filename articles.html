@@ -33,129 +33,129 @@
   <!-- Load header/footer + base scripts -->
   <script src="js/app.js"></script>
 
-  <script>
-    (function () {
-      // Use local API in dev, Render URL in production
-      const PROD_API = 'https://gmn-news-web.onrender.com';
-      const API_BASE =
-        (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
-          ? 'http://localhost:3000/api/articles'
-          : `${PROD_API}/api/articles`;
+<script>
+(function () {
+  // ⬇︎ Use localhost in dev, Render in prod
+  const PROD_API = 'https://gmn-news-web.onrender.com';
+  const API_BASE =
+    (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+      ? 'http://localhost:3000/api/articles'
+      : `${PROD_API}/api/articles`;
 
-      let offset = 0, limit = 20, hasMore = true, loading = false;
+  let offset = 0, limit = 20, hasMore = true, loading = false;
 
-      const container   = document.getElementById('articles-container');
-      const loadMoreBtn = document.getElementById('load-more-btn');
+  const container   = document.getElementById('articles-container');
+  const loadMoreBtn = document.getElementById('load-more-btn');
 
-      const timeAgo = (iso) => {
-        const d = new Date(iso);
-        const diff = (Date.now() - d.getTime()) / 1000;
-        const mins = Math.floor(diff / 60);
-        if (mins < 60) return `${mins}m ago`;
-        const hrs = Math.floor(mins / 60);
-        if (hrs < 24) return `${hrs}h ago`;
-        const days = Math.floor(hrs / 24);
-        return `${days}d ago`;
-      };
+  const timeAgo = (iso) => {
+    const d = new Date(iso);
+    const diff = (Date.now() - d.getTime()) / 1000;
+    const mins = Math.floor(diff / 60);
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    return `${days}d ago`;
+  };
 
-      function renderSkeletons(count = 6) {
-        const frag = document.createDocumentFragment();
-        for (let i = 0; i < count; i++) {
-          const s = document.createElement('div');
-          s.className = 'article-card skeleton';
-          s.innerHTML = `
-            <div class="article-thumb skeleton-box"></div>
-            <h2 class="skeleton-box skeleton-text"></h2>
-            <p class="skeleton-box skeleton-text"></p>
-            <p class="skeleton-box skeleton-text short"></p>
-          `;
-          frag.appendChild(s);
-        }
-        container.appendChild(frag);
-      }
-      function clearSkeletons() {
-        container.querySelectorAll('.skeleton').forEach(el => el.remove());
-      }
+  function renderSkeletons(count = 6) {
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < count; i++) {
+      const s = document.createElement('div');
+      s.className = 'article-card skeleton';
+      s.innerHTML = `
+        <div class="article-thumb skeleton-box"></div>
+        <h2 class="skeleton-box skeleton-text"></h2>
+        <p class="skeleton-box skeleton-text"></p>
+        <p class="skeleton-box skeleton-text short"></p>
+      `;
+      frag.appendChild(s);
+    }
+    container.appendChild(frag);
+  }
+  function clearSkeletons() {
+    container.querySelectorAll('.skeleton').forEach(el => el.remove());
+  }
 
-      async function fetchArticles(reset = false) {
-        if (loading) return;
-        loading = true;
+  async function fetchArticles(reset = false) {
+    if (loading) return;
+    loading = true;
 
-        if (reset) {
-          offset = 0; hasMore = true;
-          container.innerHTML = '';
-        }
-        if (!hasMore) { loading = false; return; }
+    if (reset) {
+      offset = 0; hasMore = true;
+      container.innerHTML = '';
+    }
+    if (!hasMore) { loading = false; return; }
 
-        loadMoreBtn.disabled = true;
-        loadMoreBtn.textContent = 'Loading…';
-        renderSkeletons(6);
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.textContent = 'Loading…';
+    renderSkeletons(6);
 
-        try {
-          const params = new URLSearchParams({ limit, offset });
-          const res = await fetch(`${API_BASE}?${params}`);
-          if (!res.ok) throw new Error(res.status);
-          const { articles, paging } = await res.json();
+    try {
+      const params = new URLSearchParams({ limit, offset });
+      const res = await fetch(`${API_BASE}?${params}`);
+      if (!res.ok) throw new Error(res.status);
+      const { articles, paging } = await res.json();
 
-          clearSkeletons();
+      clearSkeletons();
 
-          if (!articles.length && offset === 0) {
-            container.innerHTML = `<p class="empty-msg">No articles found right now. Try again later.</p>`;
-          }
-
-          const frag = document.createDocumentFragment();
-          articles.forEach(a => {
-            const internalUrl =
-              `article-detail.html?url=${encodeURIComponent(a.link)}&title=${encodeURIComponent(a.title)}`;
-            const card = document.createElement('article');
-            card.className = 'article-card';
-            card.innerHTML = `
-              ${a.image ? `<a class="thumb-link" href="${internalUrl}">
-                  <img loading="lazy" src="${a.image}" alt="${a.title}" class="article-thumb"/>
-                </a>` : ''}
-
-              <div class="article-body">
-                <div class="article-meta">
-                  <span class="badge">Posted</span>
-                  <time datetime="${a.date}">${timeAgo(a.date)}</time>
-                </div>
-                <h2 class="article-title">
-                  <a href="${internalUrl}">${a.title}</a>
-                </h2>
-                ${a.deck ? `<p class="article-deck">${a.deck}</p>` : ''}
-              </div>
-            `;
-            frag.appendChild(card);
-          });
-          container.appendChild(frag);
-
-          offset  += paging.count;
-          hasMore = paging.hasMore;
-          loadMoreBtn.style.display = hasMore ? 'block' : 'none';
-        } catch (err) {
-          console.error('Failed to load articles:', err);
-          clearSkeletons();
-          if (offset === 0) {
-            container.innerHTML = `<p class="error-msg">Error loading articles. Please refresh.</p>`;
-          } else {
-            alert('Error loading more articles.');
-          }
-        } finally {
-          loadMoreBtn.disabled = false;
-          loadMoreBtn.textContent = 'Load More';
-          loading = false;
-        }
+      if (!articles.length && offset === 0) {
+        container.innerHTML = `<p class="empty-msg">No articles found right now. Try again later.</p>`;
       }
 
-      const io = new IntersectionObserver((entries) => {
-        if (entries.some(e => e.isIntersecting)) fetchArticles();
-      }, { rootMargin: '600px' });
-      io.observe(loadMoreBtn);
+      const frag = document.createDocumentFragment();
+      articles.forEach(a => {
+        const internalUrl =
+          `article-detail.html?url=${encodeURIComponent(a.link)}&title=${encodeURIComponent(a.title)}`;
+        const card = document.createElement('article');
+        card.className = 'article-card';
+        card.innerHTML = `
+          ${a.image ? `<a class="thumb-link" href="${internalUrl}">
+              <img loading="lazy" src="${a.image}" alt="${a.title}" class="article-thumb"/>
+            </a>` : ''}
 
-      loadMoreBtn.addEventListener('click', () => fetchArticles());
+          <div class="article-body">
+            <div class="article-meta">
+              <span class="badge">Posted</span>
+              <time datetime="${a.date}">${timeAgo(a.date)}</time>
+            </div>
+            <h2 class="article-title">
+              <a href="${internalUrl}">${a.title}</a>
+            </h2>
+            ${a.deck ? `<p class="article-deck">${a.deck}</p>` : ''}
+          </div>
+        `;
+        frag.appendChild(card);
+      });
+      container.appendChild(frag);
 
-      fetchArticles(true);
-    })();
-  </script>
+      offset  += paging.count;
+      hasMore = paging.hasMore;
+      loadMoreBtn.style.display = hasMore ? 'block' : 'none';
+    } catch (err) {
+      console.error('Failed to load articles:', err);
+      clearSkeletons();
+      if (offset === 0) {
+        container.innerHTML = `<p class="error-msg">Error loading articles. Please refresh.</p>`;
+      } else {
+        alert('Error loading more articles.');
+      }
+    } finally {
+      loadMoreBtn.disabled = false;
+      loadMoreBtn.textContent = 'Load More';
+      loading = false;
+    }
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    if (entries.some(e => e.isIntersecting)) fetchArticles();
+  }, { rootMargin: '600px' });
+  io.observe(loadMoreBtn);
+
+  loadMoreBtn.addEventListener('click', () => fetchArticles());
+
+  fetchArticles(true);
+})();
+ </script>
 </body>
 </html>
