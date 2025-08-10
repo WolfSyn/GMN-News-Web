@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Article | GMN News</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .article-detail { max-width: 1000px; margin: 1rem auto; padding: 0 1rem; }
+    .article-detail .back-btn { background: none; border: 0; color: var(--color-accent); cursor: pointer; margin-bottom: .5rem; }
+    .reader-title { margin: 0 0 .75rem 0; }
+    .reader-meta { color: var(--color-muted); margin: 0 0 1rem 0; }
+    .reader-hero { width: 100%; border-radius: 8px; margin: 0 0 1rem 0; }
+    .reader-content :is(p, h2, h3, h4, ul, ol, blockquote, figure) { margin-bottom: 1rem; }
+    .reader-content img { max-width: 100%; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main class="article-detail">
+    <button class="back-btn" id="back-btn">← Back to Articles</button>
+    <h1 id="reader-title" class="reader-title">Loading…</h1>
+    <p id="reader-meta" class="reader-meta"></p>
+    <img id="reader-hero" class="reader-hero" alt="" style="display:none" />
+    <article id="reader-content" class="reader-content"></article>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(location.search);
+      const srcUrl = params.get('url');
+      const titleParam = params.get('title') || 'Article';
+
+      // Back button
+      document.getElementById('back-btn').onclick = () => history.back();
+
+      // Page title
+      document.title = `${decodeURIComponent(titleParam)} | GMN News`;
+
+      // Build internal reader API URL (local dev)
+      const API = 'http://localhost:3000/api/article?url=' + encodeURIComponent(srcUrl);
+      // When you deploy the API, switch to your live URL:
+      // const API = 'https://YOUR-DEPLOYED-API.com/api/article?url=' + encodeURIComponent(srcUrl);
+
+      try {
+        const res = await fetch(API);
+        if (!res.ok) throw new Error(res.status);
+        const data = await res.json();
+
+        // Title & meta
+        document.getElementById('reader-title').textContent = data.title || decodeURIComponent(titleParam);
+        document.getElementById('reader-meta').textContent = [data.siteName, data.byline].filter(Boolean).join(' • ');
+
+        // Lead image
+        if (data.leadImage) {
+          const hero = document.getElementById('reader-hero');
+          hero.src = data.leadImage;
+          hero.style.display = 'block';
+        }
+
+        // Article HTML (already sanitized by the API)
+        document.getElementById('reader-content').innerHTML = data.html;
+
+      } catch (err) {
+        console.error('Error loading article:', err);
+        document.getElementById('reader-title').textContent = 'Unable to load article';
+        document.getElementById('reader-content').innerHTML =
+          `<p>We couldn’t display this article right now. 
+             <a href="${decodeURIComponent(srcUrl)}" target="_blank" rel="noopener">Open original</a>.
+           </p>`;
+      }
+    });
+  </script>
+</body>
+</html>
