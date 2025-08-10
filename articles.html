@@ -35,7 +35,13 @@
 
   <script>
     (function () {
-      const API_BASE = `http://${location.hostname}:3000/api/articles`; // dev; swap to your live URL later
+      // Use local API in dev, Render URL in production
+      const PROD_API = 'https://gmn-news-web.onrender.com';
+      const API_BASE =
+        (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+          ? 'http://localhost:3000/api/articles'
+          : `${PROD_API}/api/articles`;
+
       let offset = 0, limit = 20, hasMore = true, loading = false;
 
       const container   = document.getElementById('articles-container');
@@ -153,4 +159,3 @@
   </script>
 </body>
 </html>
-
