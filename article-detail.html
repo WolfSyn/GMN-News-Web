@@ -40,10 +40,14 @@
       // Page title
       document.title = `${decodeURIComponent(titleParam)} | GMN News`;
 
-      // Build internal reader API URL (local dev)
-      const API = 'http://localhost:3000/api/article?url=' + encodeURIComponent(srcUrl);
-      // When you deploy the API, switch to your live URL:
-      // const API = 'https://YOUR-DEPLOYED-API.com/api/article?url=' + encodeURIComponent(srcUrl);
+      // Use local API in dev, Render API in production
+      const PROD_API = 'https://gmn-news-web.onrender.com';
+      const API_HOST =
+        (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+          ? 'http://localhost:3000'
+          : PROD_API;
+
+      const API = `${API_HOST}/api/article?url=` + encodeURIComponent(srcUrl);
 
       try {
         const res = await fetch(API);
@@ -68,9 +72,10 @@
         console.error('Error loading article:', err);
         document.getElementById('reader-title').textContent = 'Unable to load article';
         document.getElementById('reader-content').innerHTML =
-          `<p>We couldn’t display this article right now. 
+          `<p>We couldn’t display this article right now.
              <a href="${decodeURIComponent(srcUrl)}" target="_blank" rel="noopener">Open original</a>.
-           </p>`;
+           </p>
+           <p style="color:#888;font-size:.9rem">Tried: ${API}</p>`;
       }
     });
   </script>
