@@ -1,0 +1,16 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@mozilla/readability": "^0.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "heroku": "^8.7.1",
+    "jsdom": "^26.1.0",
+    "node": "^22.18.0",
+    "sanitize-html": "^2.17.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
