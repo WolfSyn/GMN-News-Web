@@ -8,29 +8,149 @@
   <link rel="shortcut icon" href="images/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="images/favico.ico" />
 
-  <link rel="stylesheet" href="css/style.css" />
-
-  <title>Articles | GMN News</title>
   <link rel="stylesheet" href="css/style.css"/>
+  <title>Articles | GMN News</title>
 </head>
 <body>
   <!-- Shared header -->
   <div id="site-header"></div>
 
-  <main>
-    <h1>All Articles</h1>
-    <ul>
-      <li><a href="article1.html">Breaking: New Console Leak</a></li>
-      <li><a href="article2.html">Top 10 RPGs of 2025</a></li>
-      <!-- …etc -->
-    </ul>
+  <main class="articles-page">
+    <h1>Latest Articles</h1>
+
+    <!-- Articles Grid -->
+    <div id="articles-container" class="articles-grid"></div>
+
+    <!-- Load More -->
+    <div class="load-more-wrapper">
+      <button id="load-more-btn">Load More</button>
+    </div>
   </main>
 
   <!-- Shared footer -->
   <div id="site-footer"></div>
 
-  <!-- Load partials and your scripts -->
+  <!-- Load header/footer + base scripts -->
   <script src="js/app.js"></script>
+
+  <script>
+    (function () {
+      const API_BASE = `http://${location.hostname}:3000/api/articles`; // dev; swap to your live URL later
+      let offset = 0, limit = 20, hasMore = true, loading = false;
+
+      const container   = document.getElementById('articles-container');
+      const loadMoreBtn = document.getElementById('load-more-btn');
+
+      const timeAgo = (iso) => {
+        const d = new Date(iso);
+        const diff = (Date.now() - d.getTime()) / 1000;
+        const mins = Math.floor(diff / 60);
+        if (mins < 60) return `${mins}m ago`;
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return `${hrs}h ago`;
+        const days = Math.floor(hrs / 24);
+        return `${days}d ago`;
+      };
+
+      function renderSkeletons(count = 6) {
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < count; i++) {
+          const s = document.createElement('div');
+          s.className = 'article-card skeleton';
+          s.innerHTML = `
+            <div class="article-thumb skeleton-box"></div>
+            <h2 class="skeleton-box skeleton-text"></h2>
+            <p class="skeleton-box skeleton-text"></p>
+            <p class="skeleton-box skeleton-text short"></p>
+          `;
+          frag.appendChild(s);
+        }
+        container.appendChild(frag);
+      }
+      function clearSkeletons() {
+        container.querySelectorAll('.skeleton').forEach(el => el.remove());
+      }
+
+      async function fetchArticles(reset = false) {
+        if (loading) return;
+        loading = true;
+
+        if (reset) {
+          offset = 0; hasMore = true;
+          container.innerHTML = '';
+        }
+        if (!hasMore) { loading = false; return; }
+
+        loadMoreBtn.disabled = true;
+        loadMoreBtn.textContent = 'Loading…';
+        renderSkeletons(6);
+
+        try {
+          const params = new URLSearchParams({ limit, offset });
+          const res = await fetch(`${API_BASE}?${params}`);
+          if (!res.ok) throw new Error(res.status);
+          const { articles, paging } = await res.json();
+
+          clearSkeletons();
+
+          if (!articles.length && offset === 0) {
+            container.innerHTML = `<p class="empty-msg">No articles found right now. Try again later.</p>`;
+          }
+
+          const frag = document.createDocumentFragment();
+          articles.forEach(a => {
+            const internalUrl =
+              `article-detail.html?url=${encodeURIComponent(a.link)}&title=${encodeURIComponent(a.title)}`;
+            const card = document.createElement('article');
+            card.className = 'article-card';
+            card.innerHTML = `
+              ${a.image ? `<a class="thumb-link" href="${internalUrl}">
+                  <img loading="lazy" src="${a.image}" alt="${a.title}" class="article-thumb"/>
+                </a>` : ''}
+
+              <div class="article-body">
+                <div class="article-meta">
+                  <span class="badge">Posted</span>
+                  <time datetime="${a.date}">${timeAgo(a.date)}</time>
+                </div>
+                <h2 class="article-title">
+                  <a href="${internalUrl}">${a.title}</a>
+                </h2>
+                ${a.deck ? `<p class="article-deck">${a.deck}</p>` : ''}
+              </div>
+            `;
+            frag.appendChild(card);
+          });
+          container.appendChild(frag);
+
+          offset  += paging.count;
+          hasMore = paging.hasMore;
+          loadMoreBtn.style.display = hasMore ? 'block' : 'none';
+        } catch (err) {
+          console.error('Failed to load articles:', err);
+          clearSkeletons();
+          if (offset === 0) {
+            container.innerHTML = `<p class="error-msg">Error loading articles. Please refresh.</p>`;
+          } else {
+            alert('Error loading more articles.');
+          }
+        } finally {
+          loadMoreBtn.disabled = false;
+          loadMoreBtn.textContent = 'Load More';
+          loading = false;
+        }
+      }
+
+      const io = new IntersectionObserver((entries) => {
+        if (entries.some(e => e.isIntersecting)) fetchArticles();
+      }, { rootMargin: '600px' });
+      io.observe(loadMoreBtn);
+
+      loadMoreBtn.addEventListener('click', () => fetchArticles());
+
+      fetchArticles(true);
+    })();
+  </script>
 </body>
 </html>
 
