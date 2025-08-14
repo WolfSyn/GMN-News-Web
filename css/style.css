@@ -318,17 +318,34 @@ footer a:hover { color: var(--color-accent); }
   padding: 0 1rem;
 }
 .article-title {
-  font-size: 2.5rem;
-  line-height: 1.2;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+  font-size: 3rem;          /* Big title size for desktop */
+  font-weight: 800;         /* Very bold */
+  line-height: 1.2;         /* Tight spacing for headlines */
+  margin-bottom: 1rem;      /* Space below the title */
+  font-family: 'Press Start 2P', sans-serif; /* Matches your retro font */
+  text-align: center;       /* Center align title */
+}
+
+@media (max-width: 768px) {
+  .article-title {
+    font-size: 2.2rem;      /* Slightly smaller on mobile for readability */
+  }
 }
 .article-meta {
-  font-size: 0.9rem;
-  color: var(--color-muted);
-  margin-bottom: 1.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 1rem;
+  color: #666;              /* Soft gray for contrast */
+  margin-bottom: 1.5rem;    /* Gap before hero image */
+  text-align: center;       /* Centers meta text */
+  font-style: italic;       /* Optional style for subtlety */
+}
+
+@media (max-width: 768px) {
+  .article-title {
+    font-size: 2.2rem;      /* Adjust for mobile */
+  }
+  .article-meta {
+    font-size: 0.9rem;
+  }
 }
 .article-hero {
   max-width: 800px;
